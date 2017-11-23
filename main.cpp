@@ -10,6 +10,10 @@
 
 using namespace std;
 
+constexpr int FPS = 60;
+
+///////////////////////////////////////////////////////////////////////////////
+
 using Point2d = complex<double>;
 
 class Circle {
@@ -44,6 +48,8 @@ public:
 
 const int Circle::ACCURACY = 180;
 
+///////////////////////////////////////////////////////////////////////////////
+
 class Keyboard {
   unordered_set<unsigned char> pressed;
   unordered_set<unsigned char> held;
@@ -69,16 +75,39 @@ public:
 
 unique_ptr<Keyboard> keyboard;
 
+///////////////////////////////////////////////////////////////////////////////
+
+class PlayerBullet{
+  Circle circle;
+  Point2d velocity;
+public:
+  PlayerBullet(const Circle& circle, Point2d velocity) {
+    this->circle = circle;
+    this->velocity = velocity;
+  }
+  void Update(){
+    Point2d nCenter = velocity / (double)FPS + circle.Center();
+    this->circle = Circle{nCenter.real(), nCenter.imag(), circle.Radius()};
+  }
+  void Draw() {
+    this->circle.Draw();
+  }
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
 class Player {
   static const double SPEED;
   Circle circle;
-  
+  int lastFireTime;
 public:
   Player(const Circle& circle) {
     this->circle = circle;
+    this->lastFireTime = 0;
   }
   
-  void Update() {
+  vector<unique_ptr<PlayerBullet>> Update() {
+    // move
     double dx = 0.0, dy = 0.0;
     if(keyboard->IsHeld('w')) {
       dy += 1;
@@ -95,18 +124,40 @@ public:
     Point2d dvector(dx, dy);
     double dvectorLength = abs(dvector);
     if (dvectorLength > 0) {
-      dvector = SPEED * (dvector / dvectorLength);
+      dvector = SPEED / FPS * (dvector / dvectorLength);
 
       Point2d nCenter = circle.Center() + dvector;
       this->circle = Circle{nCenter.real(), nCenter.imag(), circle.Radius()};
     }
+
+    // shoot
+    vector<unique_ptr<PlayerBullet>> bullets;
+    int currentTime = glutGet(GLUT_ELAPSED_TIME);
+    if(keyboard->IsHeld('n') && currentTime - lastFireTime > 200) {
+      lastFireTime = currentTime;
+      // TODO: pass parameters
+      bullets.emplace_back(new PlayerBullet(this->circle, Point2d(0.0, 1.0)));
+    }
+    return move(bullets);
   }
   void Draw() {
     this->circle.Draw();
   }
 };
 
-const double Player::SPEED = 0.008;
+const double Player::SPEED = 0.5;
+
+///////////////////////////////////////////////////////////////////////////////
+
+class EnemyBullet{
+public:
+  void Update(){
+  }
+  void Draw() {
+  }
+};
+
+///////////////////////////////////////////////////////////////////////////////
 
 class Enemy{
 public:
@@ -116,21 +167,7 @@ public:
   }
 };
 
-class PlayerBullet{
-public:
-  void Update(){
-  }
-  void Draw() {
-  }
-};
-
-class EnemyBullet{
-public:
-  void Update(){
-  }
-  void Draw() {
-  }
-};
+///////////////////////////////////////////////////////////////////////////////
 
 class Stage {
   unique_ptr<Player> player;
@@ -143,7 +180,8 @@ public:
     this->player = unique_ptr<Player>(new Player(player));
   }
   void Update() {
-    player->Update();
+    // TODO: しんだおぶじぇくとをかいしゅう
+    vector<unique_ptr<PlayerBullet>> newPlayerBullets = player->Update();
     for (auto& enemy : enemies) {
       enemy->Update();
     }
@@ -152,6 +190,9 @@ public:
     }
     for (auto& bullet : enemyBullets) {
       bullet->Update();
+    }
+    for(auto& newPlayerBullet : newPlayerBullets ) {
+      playerBullets.push_back(move(newPlayerBullet));
     }
     //TODO : あたりはんてい
   }
@@ -170,14 +211,18 @@ public:
   }
 };
 
-
+///////////////////////////////////////////////////////////////////////////////
 
 void keyboardDown(unsigned char key, int x, int y);
 void keyboardUp(unsigned char key, int x, int y);
 void display(void);
 void idle(void);
 
+///////////////////////////////////////////////////////////////////////////////
+
 unique_ptr<Stage> stage;
+
+///////////////////////////////////////////////////////////////////////////////
 
 int main(int argc, char** argv)
 {
@@ -201,6 +246,7 @@ int main(int argc, char** argv)
   return EXIT_SUCCESS;
 }
 
+///////////////////////////////////////////////////////////////////////////////
 
 void keyboardDown(unsigned char key, int x, int y)
 {
@@ -238,7 +284,7 @@ void idle(void)
 {
   static double lastTime = 0.0;
   double curTime =  glutGet(GLUT_ELAPSED_TIME) / 1000.0f;
-  if(curTime - lastTime > 1.0 / 60) {
+  if(curTime - lastTime > 1.0 / FPS) {
     lastTime = curTime;
     glutPostRedisplay();
   }
