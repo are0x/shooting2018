@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <assert.h>
 #include <GL/glut.h>
 #include <vector>
 #include <cmath>
@@ -160,10 +161,82 @@ public:
 ///////////////////////////////////////////////////////////////////////////////
 
 class Enemy{
+  int hp;
+  Circle circle;
 public:
-  void Update(){
+  Enemy(int hp, Circle circle) {
+    this->hp = hp;
+    this->circle = circle;
   }
-  void Draw() {
+  virtual void Update() = 0;
+  virtual void Draw() {
+    circle.Draw();
+  }
+  virtual bool IsDead() {
+    return  hp <= 0;
+  }
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+class SimpleEnemy : public Enemy {
+public:
+  SimpleEnemy(Point2d pos):Enemy(5, Circle{pos.real(), pos.imag(), 0.1}) {}
+  void Update() {}
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+class Scene {
+public:
+  virtual vector<unique_ptr<Enemy>> Update() {
+    return vector<unique_ptr<Enemy>>();
+  }
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+class EnemyFactory {
+public:
+  virtual unique_ptr<Enemy> make() = 0;
+};
+
+class SimpleEnemyFactory : public EnemyFactory {
+  Point2d pos;
+public:
+  SimpleEnemyFactory(Point2d pos) {
+    this->pos = pos;
+  }
+  unique_ptr< Enemy > make() {
+    return unique_ptr< Enemy >(new SimpleEnemy(this->pos));
+  }
+};
+
+shared_ptr<EnemyFactory> simpleEnemyFactory(Point2d pos) {
+  return shared_ptr<EnemyFactory>(new SimpleEnemyFactory(pos));
+}
+
+class SimpleScene : public Scene {
+  int startFrame;
+  vector<pair<double, shared_ptr<EnemyFactory>>> schedule;
+  int doneCount;
+public:
+  SimpleScene(const vector<pair<double, shared_ptr<EnemyFactory>>>& schedule) {
+    this->schedule = schedule;
+    this->doneCount = 0;
+  }
+  void Start() {
+    startFrame = glutGet(GLUT_ELAPSED_TIME);
+  }
+  vector<unique_ptr<Enemy>> Update() {
+    vector<unique_ptr<Enemy>> result;
+    int currentFrame = glutGet(GLUT_ELAPSED_TIME);
+    while( doneCount < (int)schedule.size() &&
+	   schedule[doneCount].first < (currentFrame - startFrame) / 1000 ) {
+      result.push_back(schedule[doneCount].second->make());
+      doneCount++;
+    }
+    return result;
   }
 };
 
@@ -174,14 +247,17 @@ class Stage {
   vector<unique_ptr<Enemy>> enemies;
   vector<unique_ptr<PlayerBullet>> playerBullets;
   vector<unique_ptr<EnemyBullet>> enemyBullets;
+  unique_ptr<Scene> scene;
 
 public:
-  Stage (const Player& player) {
+  Stage (const Player& player, unique_ptr<Scene> scene) {
     this->player = unique_ptr<Player>(new Player(player));
+    this->scene = move(scene);
   }
   void Update() {
     // TODO: しんだおぶじぇくとをかいしゅう
     vector<unique_ptr<PlayerBullet>> newPlayerBullets = player->Update();
+    
     for (auto& enemy : enemies) {
       enemy->Update();
     }
@@ -191,8 +267,12 @@ public:
     for (auto& bullet : enemyBullets) {
       bullet->Update();
     }
-    for(auto& newPlayerBullet : newPlayerBullets ) {
+    vector<unique_ptr<Enemy>> newEnemies = scene->Update();
+    for(auto& newPlayerBullet : newPlayerBullets) {
       playerBullets.push_back(move(newPlayerBullet));
+    }
+     for(auto& newEnemy : newEnemies) {
+      enemies.push_back(move(newEnemy));
     }
     //TODO : あたりはんてい
   }
@@ -228,10 +308,19 @@ int main(int argc, char** argv)
 {
   //init stage
   Player player(Circle{0.0, 0.0, 0.03});
-  stage = unique_ptr<Stage>(new Stage(player));
-
+  unique_ptr<Scene> scene(new SimpleScene(vector<pair<double, shared_ptr<EnemyFactory>>>{
+    {0.0, simpleEnemyFactory(Point2d(0.0, 0.5))},
+    {3.0, simpleEnemyFactory(Point2d(-0.3, 0.5))},
+    {6.0, simpleEnemyFactory(Point2d(0.3, 0.5))},
+    {9.0, simpleEnemyFactory(Point2d(0.0, 0.5))}
+  }));
+  stage = unique_ptr<Stage>(new Stage(player, move(scene)));
+  assert(!scene);
+  
   keyboard = unique_ptr<Keyboard>(new Keyboard());
   
+  stage->Update();
+
   glutInitWindowPosition(100, 100);
   glutInitWindowSize(640, 480);
   glutInit(&argc, argv);
