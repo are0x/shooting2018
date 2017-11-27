@@ -124,6 +124,11 @@ public:
     this->lastFireTime = 0;
     this->hp = 1;
   }
+  Player(const Player& player) {
+    this->circle = player.HitBody();
+    this->lastFireTime = 0;
+    this->hp = 1;
+  }
   
   vector<unique_ptr<PlayerBullet>> Update() {
     // move
@@ -162,7 +167,10 @@ public:
   void Draw() {
     this->circle.Draw();
   }
-  Circle HitBody() {
+  void MoveOutOfDisplay() {
+    this->circle = Circle{10000,10000, circle.Radius()};
+  }
+  Circle HitBody() const {
     return this->circle;
   }
   void AddDamage(int damage) {
@@ -278,6 +286,8 @@ public:
 ///////////////////////////////////////////////////////////////////////////////
 
 class Stage {
+  unique_ptr<Player> initPlayer;
+  int respawnCounter;
   unique_ptr<Player> player;
   vector<unique_ptr<Enemy>> enemies;
   vector<unique_ptr<PlayerBullet>> playerBullets;
@@ -286,8 +296,10 @@ class Stage {
 
 public:
   Stage (const Player& player, unique_ptr<Scene> scene) {
+    this->initPlayer = unique_ptr<Player>(new Player(player));
     this->player = unique_ptr<Player>(new Player(player));
     this->scene = move(scene);
+    this->respawnCounter = 0;
   }
   void Update() {
     vector<unique_ptr<PlayerBullet>> newPlayerBullets = player->Update();
@@ -323,7 +335,6 @@ public:
        }
      }
 
-    
      for (auto& enemy : enemies) {
 	if (enemy->HitBody().IsOverlapC(player->HitBody())) {
 	  enemy->AddDamage(1000000);
@@ -341,12 +352,18 @@ public:
        remove_if (playerBullets.begin(), playerBullets.end(),
          [](unique_ptr<PlayerBullet>& x)->bool{return x->IsDead();});
      playerBullets.erase(playerBulletNewEnd, playerBullets.end());
+     if (player->IsDead()) {
+       player->MoveOutOfDisplay();
+       if (keyboard->IsPressed('r') && respawnCounter < 3) {
+	 player = unique_ptr<Player>(new Player(*initPlayer));
+	 respawnCounter++;
+       }
+     }
   }
 
   void Draw() {
-    if (!player->IsDead()) {
-      player->Draw();
-    }
+    player->Draw();
+    
     for (auto& enemy : enemies) {
       enemy->Draw();
     }
