@@ -117,10 +117,12 @@ class Player {
   static const double SPEED;
   Circle circle;
   int lastFireTime;
+  int hp;
 public:
   Player(const Circle& circle) {
     this->circle = circle;
     this->lastFireTime = 0;
+    this->hp = 1;
   }
   
   vector<unique_ptr<PlayerBullet>> Update() {
@@ -162,6 +164,12 @@ public:
   }
   Circle HitBody() {
     return this->circle;
+  }
+  void AddDamage(int damage) {
+    hp -= damage;
+  }
+  bool IsDead() {
+    return hp <= 0;
   }
 };
 
@@ -282,7 +290,6 @@ public:
     this->scene = move(scene);
   }
   void Update() {
-    // TODO: しんだおぶじぇくとをかいしゅう
     vector<unique_ptr<PlayerBullet>> newPlayerBullets = player->Update();
     
     for (auto& enemy : enemies) {
@@ -316,6 +323,15 @@ public:
        }
      }
 
+    
+     for (auto& enemy : enemies) {
+	if (enemy->HitBody().IsOverlapC(player->HitBody())) {
+	  enemy->AddDamage(1000000);
+	  player->AddDamage(1);
+	}
+      }
+
+     //TODO : remove out of range bullet 
      //remove dead object
      auto enemiesNewEnd =
        remove_if(enemies.begin(), enemies.end(),
@@ -328,7 +344,9 @@ public:
   }
 
   void Draw() {
-    player->Draw();
+    if (!player->IsDead()) {
+      player->Draw();
+    }
     for (auto& enemy : enemies) {
       enemy->Draw();
     }
