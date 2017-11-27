@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <GL/glut.h>
+#include <algorithm>
 #include <vector>
 #include <cmath>
 #include <complex>
@@ -45,6 +46,10 @@ public:
     }
     glEnd();    
   }
+  
+  bool IsOverlapC(const Circle &x) {
+    return abs(c - x.Center()) <= r + x.Radius();
+  }
 };
 
 const int Circle::ACCURACY = 180;
@@ -81,10 +86,12 @@ unique_ptr<Keyboard> keyboard;
 class PlayerBullet{
   Circle circle;
   Point2d velocity;
+  int hp;
 public:
   PlayerBullet(const Circle& circle, Point2d velocity) {
     this->circle = circle;
     this->velocity = velocity;
+    this->hp = 1;
   }
   void Update(){
     Point2d nCenter = velocity / (double)FPS + circle.Center();
@@ -92,6 +99,15 @@ public:
   }
   void Draw() {
     this->circle.Draw();
+  }
+  Circle HitBody() {
+    return this->circle;
+  }
+  bool IsDead() {
+    return hp <= 0;
+  }
+  void AddDamage(int damage) {
+    hp -= damage;
   }
 };
 
@@ -144,6 +160,9 @@ public:
   void Draw() {
     this->circle.Draw();
   }
+  Circle HitBody() {
+    return this->circle;
+  }
 };
 
 const double Player::SPEED = 0.5;
@@ -163,10 +182,12 @@ public:
 class Enemy{
   int hp;
   Circle circle;
+  bool deadFlag;
 public:
   Enemy(int hp, Circle circle) {
     this->hp = hp;
     this->circle = circle;
+    this->deadFlag = false;
   }
   virtual void Update() = 0;
   virtual void Draw() {
@@ -174,6 +195,12 @@ public:
   }
   virtual bool IsDead() {
     return  hp <= 0;
+ }
+  Circle HitBody() {
+    return this->circle;
+  }
+  void AddDamage(int damage) {
+    this->hp -= damage;
   }
 };
 
@@ -274,7 +301,30 @@ public:
      for(auto& newEnemy : newEnemies) {
       enemies.push_back(move(newEnemy));
     }
-    //TODO : あたりはんてい
+     
+     //hit judge
+     for (auto& bullet : playerBullets) {
+       bool hitBulletFlag = false;
+       for (auto& enemy : enemies) {
+	 if (bullet->HitBody().IsOverlapC(enemy->HitBody())) {
+	   enemy->AddDamage(1);
+	   hitBulletFlag = true;
+	 }
+       }
+       if (hitBulletFlag) {
+	 bullet->AddDamage(1);
+       }
+     }
+
+     //remove dead object
+     auto enemiesNewEnd =
+       remove_if(enemies.begin(), enemies.end(),
+         [](unique_ptr<Enemy>& x)->bool{return x->IsDead();});
+     enemies.erase(enemiesNewEnd, enemies.end());
+     auto playerBulletNewEnd =
+       remove_if (playerBullets.begin(), playerBullets.end(),
+         [](unique_ptr<PlayerBullet>& x)->bool{return x->IsDead();});
+     playerBullets.erase(playerBulletNewEnd, playerBullets.end());
   }
 
   void Draw() {
