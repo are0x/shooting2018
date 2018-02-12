@@ -1,0 +1,8 @@
+*.o
+*.exe
+memo.txt
+Makefile
+CMakeFiles/
+CMakeCache.txt
+CopyOfCMakeCache.txt
+cmake_install.cmake
