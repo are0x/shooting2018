@@ -103,7 +103,7 @@ void idle(void)
   static double lastTime = 0.0;
   double curTime =  glutGet(GLUT_ELAPSED_TIME) / 1000.0f;
   if(curTime - lastTime > 1.0 / FPS) {
-    time::diff = curTime - lastTime;
+    are_time::diff = curTime - lastTime;
     lastTime = curTime;
     glutPostRedisplay();
   }

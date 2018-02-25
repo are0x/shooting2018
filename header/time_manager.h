@@ -1,5 +1,5 @@
 #pragma once
 
-namespace time {
+namespace are_time {
   extern double diff;
 }
