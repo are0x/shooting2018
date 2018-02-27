@@ -1,10 +1,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
-#include <GL/glut.h>
 #include <algorithm>
 #include <vector>
 #include <cmath>
+#include <GLFW/glfw3.h>
 #include <string>
 #include <memory>
 #include <unordered_set>
@@ -21,10 +21,10 @@
 using namespace std;
 
 
-void keyboardDown(unsigned char key, int x, int y);
-void keyboardUp(unsigned char key, int x, int y);
+//void keyboardDown(unsigned char key, int x, int y);
+//void keyboardUp(unsigned char key, int x, int y);
 void display(void);
-void idle(void);
+//void idle(void);
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -33,8 +33,41 @@ unique_ptr<Stage> stage;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-int main(int argc, char** argv)
+//int main(int argc, char** argv)
+//{
+
+  //glutInitWindowPosition(100, 100);
+  //glutInitWindowSize(640, 480);
+  //glutInit(&argc, argv);
+  //glutCreateWindow("GLUT Test");
+  //glutKeyboardFunc(&keyboardDown);
+  //glutKeyboardUpFunc(&keyboardUp);
+  //glutIdleFunc(&idle);
+  //glutDisplayFunc(&display);
+
+  //glutMainLoop();
+
+//  return EXIT_SUCCESS;
+//}
+
+int main(void)
 {
+    /* Initialize the library */
+  if (!glfwInit()) {
+        return -1;
+  }
+
+  /* Create a windowed mode window and its OpenGL context */
+  unique_ptr<GLFWwindow, decltype(&glfwDestroyWindow)>
+    window(glfwCreateWindow(640, 480, "シューティンギュ", NULL, NULL), glfwDestroyWindow);
+  if (!window) {
+    glfwTerminate();
+    return -1;
+  }
+
+  /* Make the window's context current */
+  glfwMakeContextCurrent(window.get());
+
   //init stage
   Player player(Circle{0.0, 0.0, 0.03});
   unique_ptr<Scene> scene(new SimpleScene(vector<pair<double, shared_ptr<EnemyFactory>>>{
@@ -50,41 +83,43 @@ int main(int argc, char** argv)
   
   stage->Update();
 
-  glutInitWindowPosition(100, 100);
-  glutInitWindowSize(640, 480);
-  glutInit(&argc, argv);
-  glutCreateWindow("GLUT Test");
-  glutKeyboardFunc(&keyboardDown);
-  glutKeyboardUpFunc(&keyboardUp);
-  glutIdleFunc(&idle);
-  glutDisplayFunc(&display);
+  /* Loop until the user closes the window */
+  while (!glfwWindowShouldClose(window.get())) {
+    /* Render here */
+    //glClear(GL_COLOR_BUFFER_BIT);
+    display();
+    /* Swap front and back buffers */
+    glfwSwapBuffers(window.get());
+    
+    /* Poll for and process events */
+    glfwPollEvents();
+  }
 
-  glutMainLoop();
-
-  return EXIT_SUCCESS;
+  glfwTerminate();
+  return 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void keyboardDown(unsigned char key, int x, int y)
-{
-  printf( "press: %x (%c)\n", key, key );
-  fflush(stdout);
-  keyboard->Press(key);
-  switch (key)
-  {
-    case '\x1B':
-      exit(EXIT_SUCCESS);
-      break;
-  }
-}
+// void keyboardDown(unsigned char key, int x, int y)
+// {
+//   printf( "press: %x (%c)\n", key, key );
+//   fflush(stdout);
+//   keyboard->Press(key);
+//   switch (key)
+//   {
+//     case '\x1B':
+//       exit(EXIT_SUCCESS);
+//       break;
+//   }
+// }
 
-void keyboardUp(unsigned char key, int x, int y)
-{
-  printf( "release: %x (%c)\n", key, key );
-  fflush(stdout);
-  keyboard->Release(key);
-}
+// void keyboardUp(unsigned char key, int x, int y)
+// {
+//   printf( "release: %x (%c)\n", key, key );
+//   fflush(stdout);
+//   keyboard->Release(key);
+// }
 
 
 void display()
@@ -95,16 +130,16 @@ void display()
   glClear(GL_COLOR_BUFFER_BIT);
   glColor3f(1.0f, 0.0f, 0.0f);
   stage->Draw();
-  glutSwapBuffers();
+  //glutSwapBuffers();
 }
 
-void idle(void)
-{
-  static double lastTime = 0.0;
-  double curTime =  glutGet(GLUT_ELAPSED_TIME) / 1000.0f;
-  if(curTime - lastTime > 1.0 / FPS) {
-    are_time::diff = curTime - lastTime;
-    lastTime = curTime;
-    glutPostRedisplay();
-  }
-}
+// void idle(void)
+// {
+//   static double lastTime = 0.0;
+//   double curTime =  glutGet(GLUT_ELAPSED_TIME) / 1000.0f;
+//   if(curTime - lastTime > 1.0 / FPS) {
+//     are_time::diff = curTime - lastTime;
+//     lastTime = curTime;
+//     glutPostRedisplay();
+//   }
+// }

@@ -62,7 +62,9 @@ std::vector<std::unique_ptr<PlayerBullet>> Player::Update() {
 
   // shoot
   std::vector<std::unique_ptr<PlayerBullet>> bullets;
-  int currentTime = glutGet(GLUT_ELAPSED_TIME);
+  //TODO get currentTime 
+  //int currentTime = glutGet(GLUT_ELAPSED_TIME);
+  int currentTime = 0;
   if(keyboard->IsHeld('n') && currentTime - lastFireTime > 200) {
     lastFireTime = currentTime;
     // TODO: pass parameters

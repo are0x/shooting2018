@@ -1,7 +1,7 @@
 #pragma once
 
 #include <complex>
-#include <GL/glut.h>
+#include <GLFW/glfw3.h>
 #include <cmath>
 
 using Point2d = std::complex<double>;
@@ -22,4 +22,3 @@ public:
   
   bool IsOverlapC(const Circle &x);
 };
-

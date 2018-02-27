@@ -20,5 +20,12 @@ add_executable(Main
   header/time_manager.cpp
 )
 
-target_link_libraries(Main opengl32 freeglut)
+IF(APPLE)
+    find_library( OpenGL_LIBRARY OpenGL )
+    SET( EXTRA_LIBS ${OpenGL_LIBRARY})
+ELSE()
+    SET( EXTRA_LIBS "opengl32")
+ENDIF()
+
+target_link_libraries(Main glfw3 ${EXTRA_LIBS})
 
