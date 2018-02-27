@@ -33,26 +33,9 @@ unique_ptr<Stage> stage;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-//int main(int argc, char** argv)
-//{
-
-  //glutInitWindowPosition(100, 100);
-  //glutInitWindowSize(640, 480);
-  //glutInit(&argc, argv);
-  //glutCreateWindow("GLUT Test");
-  //glutKeyboardFunc(&keyboardDown);
-  //glutKeyboardUpFunc(&keyboardUp);
-  //glutIdleFunc(&idle);
-  //glutDisplayFunc(&display);
-
-  //glutMainLoop();
-
-//  return EXIT_SUCCESS;
-//}
-
 int main(void)
 {
-    /* Initialize the library */
+  /* Initialize the library */
   if (!glfwInit()) {
         return -1;
   }
@@ -68,13 +51,17 @@ int main(void)
   /* Make the window's context current */
   glfwMakeContextCurrent(window.get());
 
+  //view port setting
+  glViewport(0, 0, 640, 480);
+  glOrtho(0, 640, 0, 480, -1, 1);
+
   //init stage
-  Player player(Circle{0.0, 0.0, 0.03});
+  Player player(Circle{320, 100, 20});
   unique_ptr<Scene> scene(new SimpleScene(vector<pair<double, shared_ptr<EnemyFactory>>>{
-    {0.0, simpleEnemyFactory(Point2d(0.0, 0.5))},
-    {3.0, simpleEnemyFactory(Point2d(-0.3, 0.5))},
-    {6.0, simpleEnemyFactory(Point2d(0.3, 0.5))},
-    {9.0, simpleEnemyFactory(Point2d(0.0, 0.5))}
+    {0.0, simpleEnemyFactory(Point2d(100, 300))},
+    {3.0, simpleEnemyFactory(Point2d(200, 300))},
+    {6.0, simpleEnemyFactory(Point2d(300, 300))},
+    {9.0, simpleEnemyFactory(Point2d(400, 300))}
   }));
   stage = unique_ptr<Stage>(new Stage(player, move(scene)));
   assert(!scene);
@@ -130,7 +117,6 @@ void display()
   glClear(GL_COLOR_BUFFER_BIT);
   glColor3f(1.0f, 0.0f, 0.0f);
   stage->Draw();
-  //glutSwapBuffers();
 }
 
 // void idle(void)
