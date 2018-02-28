@@ -1,5 +1,6 @@
 #include "player.h"
 #include "config.h"
+#include <GLFW/glfw3.h>
 
 PlayerBullet::PlayerBullet(const Circle& circle, Point2d velocity) {
   this->circle = circle;
@@ -39,16 +40,16 @@ Player:: Player(const Player& player) {
 std::vector<std::unique_ptr<PlayerBullet>> Player::Update() {
   // move
   double dx = 0.0, dy = 0.0;
-  if(keyboard->IsHeld('w')) {
+  if(keyboard->IsHeld(GLFW_KEY_UP)) {
     dy += 1;
   }
-  if(keyboard->IsHeld('s')) {
+  if(keyboard->IsHeld(GLFW_KEY_DOWN)) {
     dy -= 1;
   }
-  if(keyboard->IsHeld('a')) {
+  if(keyboard->IsHeld(GLFW_KEY_LEFT)) {
     dx -= 1;
   }
-  if(keyboard->IsHeld('d')) {
+  if(keyboard->IsHeld(GLFW_KEY_RIGHT)) {
     dx += 1;
  }
   Point2d dvector(dx, dy);
@@ -62,12 +63,12 @@ std::vector<std::unique_ptr<PlayerBullet>> Player::Update() {
 
   // shoot
   std::vector<std::unique_ptr<PlayerBullet>> bullets;
-  //TODO get currentTime 
   double currentTime = timeManager.GetNow();
-  if(keyboard->IsHeld('n') && currentTime - lastFireTime > 0.2) {
+  if(keyboard->IsHeld(GLFW_KEY_Z) && currentTime - lastFireTime > 0.1) {
     lastFireTime = currentTime;
     // TODO: pass parameters
-    bullets.emplace_back(new PlayerBullet(this->circle, Point2d(0.0, 1.0)));
+    Circle bulletCircle(circle.Center().real(), circle.Center().imag(), 9);
+    bullets.emplace_back(new PlayerBullet(bulletCircle, Point2d(0.0, 800)));
   }
   return move(bullets);
 }
@@ -87,4 +88,4 @@ bool Player::IsDead() {
   return hp <= 0;
 }
 
-const double Player::SPEED = 0.5;
+const double Player::SPEED = 350;

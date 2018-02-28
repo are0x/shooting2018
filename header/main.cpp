@@ -21,8 +21,7 @@
 using namespace std;
 
 
-//void keyboardDown(unsigned char key, int x, int y);
-//void keyboardUp(unsigned char key, int x, int y);
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 void display(void);
 //void idle(void);
 
@@ -52,6 +51,9 @@ int main(void)
   /* Make the window's context current */
   glfwMakeContextCurrent(window.get());
 
+  //set key call back
+  glfwSetKeyCallback(window.get(), key_callback);
+
   //view port setting
   glViewport(0, 0, 640, 480);
   glOrtho(0, 640, 0, 480, -1, 1);
@@ -79,6 +81,7 @@ int main(void)
       continue;
     }
     timeManager.Update(nowTime);
+    keyboard->Update();
     /* Render here */
     display();
     /* Swap front and back buffers */
@@ -94,44 +97,21 @@ int main(void)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// void keyboardDown(unsigned char key, int x, int y)
-// {
-//   printf( "press: %x (%c)\n", key, key );
-//   fflush(stdout);
-//   keyboard->Press(key);
-//   switch (key)
-//   {
-//     case '\x1B':
-//       exit(EXIT_SUCCESS);
-//       break;
-//   }
-// }
-
-// void keyboardUp(unsigned char key, int x, int y)
-// {
-//   printf( "release: %x (%c)\n", key, key );
-//   fflush(stdout);
-//   keyboard->Release(key);
-// }
-
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+  if (action == GLFW_PRESS) {
+    keyboard->Press(key);
+  } else if (action == GLFW_RELEASE) {
+    keyboard->Release(key);
+  }
+  
+}
 
 void display()
 {
   stage->Update();
-  keyboard->Update();
   
   glClear(GL_COLOR_BUFFER_BIT);
   glColor3f(1.0f, 0.0f, 0.0f);
   stage->Draw();
 }
-
-// void idle(void)
-// {
-//   static double lastTime = 0.0;
-//   double curTime =  glutGet(GLUT_ELAPSED_TIME) / 1000.0f;
-//   if(curTime - lastTime > 1.0 / FPS) {
-//     are_time::diff = curTime - lastTime;
-//     lastTime = curTime;
-//     glutPostRedisplay();
-//   }
-// }

@@ -4,15 +4,16 @@
 #include <unordered_set>
 
 class Keyboard {
-  std::unordered_set<unsigned char> pressed;
-  std::unordered_set<unsigned char> held;
+  using key_type = int;
+  std::unordered_set<key_type> pressed;
+  std::unordered_set<key_type> held;
 
 public:
-  bool IsPressed(unsigned char key); 
-  bool IsHeld(unsigned char key);
+  bool IsPressed(key_type key); 
+  bool IsHeld(key_type key);
   void Update();
-  void Press(unsigned char key);
-  void Release(unsigned char key);
+  void Press(key_type key);
+  void Release(key_type key);
 };
 
 extern std::unique_ptr<Keyboard> keyboard;
