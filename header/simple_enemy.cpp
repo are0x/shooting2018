@@ -1,6 +1,6 @@
 #include "simple_enemy.h"
 
-SimpleEnemy::SimpleEnemy(Point2d pos):Enemy(5, Circle{pos.real(), pos.imag(), 0.1}) {}
+SimpleEnemy::SimpleEnemy(Point2d pos):Enemy(5, Circle{pos.real(), pos.imag(), 10}) {}
 void SimpleEnemy::Update() {}
 
 ///////////////////////////////////////////////////////////////////////////////

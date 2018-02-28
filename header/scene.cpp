@@ -10,18 +10,14 @@ SimpleScene::SimpleScene(const std::vector<std::pair<double, std::shared_ptr<Ene
 }
 
 void SimpleScene::Start() {
-  //TODO get start frame
-  //startFrame = glutGet(GLUT_ELAPSED_TIME);
-  startFrame = 0;
+  startTime = timeManager.GetNow();
 }
 
 std::vector<std::unique_ptr<Enemy>> SimpleScene::Update() {
   std::vector<std::unique_ptr<Enemy>> result;
-  //TODO get current time
-  //int currentFrame = glutGet(GLUT_ELAPSED_TIME);
-  int currentFrame = 0;
+  double nowTime = timeManager.GetNow();
   while( doneCount < (int)schedule.size() &&
-	 schedule[doneCount].first < (currentFrame - startFrame) / 1000 ) {
+	 schedule[doneCount].first < nowTime - startTime ) {
     result.push_back(schedule[doneCount].second->Make());
     doneCount++;
   }

@@ -50,7 +50,7 @@ std::vector<std::unique_ptr<PlayerBullet>> Player::Update() {
   }
   if(keyboard->IsHeld('d')) {
     dx += 1;
-  }
+ }
   Point2d dvector(dx, dy);
   double dvectorLength = abs(dvector);
   if (dvectorLength > 0) {
@@ -63,9 +63,8 @@ std::vector<std::unique_ptr<PlayerBullet>> Player::Update() {
   // shoot
   std::vector<std::unique_ptr<PlayerBullet>> bullets;
   //TODO get currentTime 
-  //int currentTime = glutGet(GLUT_ELAPSED_TIME);
-  int currentTime = 0;
-  if(keyboard->IsHeld('n') && currentTime - lastFireTime > 200) {
+  double currentTime = timeManager.GetNow();
+  if(keyboard->IsHeld('n') && currentTime - lastFireTime > 0.2) {
     lastFireTime = currentTime;
     // TODO: pass parameters
     bullets.emplace_back(new PlayerBullet(this->circle, Point2d(0.0, 1.0)));

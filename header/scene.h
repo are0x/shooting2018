@@ -3,6 +3,7 @@
 #include <vector>
 #include <memory>
 #include "enemy.h"
+#include "time_manager.h"
 
 class Scene {
 public:
@@ -12,7 +13,7 @@ public:
 ///////////////////////////////////////////////////////////////////////////////
 
 class SimpleScene : public Scene {
-  int startFrame;
+  double startTime;
   std::vector<std::pair<double, std::shared_ptr<EnemyFactory>>> schedule;
   int doneCount;
 public:

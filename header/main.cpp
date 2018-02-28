@@ -30,6 +30,7 @@ void display(void);
 
 unique_ptr<Keyboard> keyboard;
 unique_ptr<Stage> stage;
+are_time::TimeManager timeManager;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -70,10 +71,15 @@ int main(void)
   
   stage->Update();
 
+  glfwSetTime(0);
   /* Loop until the user closes the window */
   while (!glfwWindowShouldClose(window.get())) {
+    float nowTime = glfwGetTime();
+    if (nowTime - timeManager.GetNow() <= 1.0 / FPS) {
+      continue;
+    }
+    timeManager.Update(nowTime);
     /* Render here */
-    //glClear(GL_COLOR_BUFFER_BIT);
     display();
     /* Swap front and back buffers */
     glfwSwapBuffers(window.get());

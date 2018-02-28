@@ -1,6 +1,8 @@
 #pragma once
+
 #include "circle.h"
 #include "keyboard.h"
+#include "time_manager.h"
 #include <vector>
 #include <memory>
 
@@ -22,7 +24,7 @@ public:
 class Player {
   static const double SPEED;
   Circle circle;
-  int lastFireTime;
+  double lastFireTime;
   int hp;
 public:
   Player(const Circle& circle);
