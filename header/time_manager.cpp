@@ -13,7 +13,7 @@ are_time::TimeManager::TimeManager(double nowTime) {
 }
 
 void are_time::TimeManager::Update(double nowTime) {
-  this->prevTime = nowTime;
+  this->prevTime = this->nowTime;
   this->nowTime = nowTime;
   this->diff = (this->nowTime) - (this->prevTime);
 }

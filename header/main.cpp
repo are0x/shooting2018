@@ -30,6 +30,12 @@ void display(void);
 unique_ptr<Keyboard> keyboard;
 unique_ptr<Stage> stage;
 are_time::TimeManager timeManager;
+std::vector<std::vector<EnemyCommand>> enemyCommands{
+  {makeEnemyCommand("move 10 0 -160")},
+  {makeEnemyCommand("move 10 -80 -80")},
+  {makeEnemyCommand("move 2 0 -160"),
+   makeEnemyCommand("move 8 0 80")}
+};
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -61,10 +67,11 @@ int main(void)
   //init stage
   Player player(Circle{320, 100, 20});
   unique_ptr<Scene> scene(new SimpleScene(vector<pair<double, shared_ptr<EnemyFactory>>>{
-    {0.0, simpleEnemyFactory(Point2d(100, 300))},
-    {3.0, simpleEnemyFactory(Point2d(200, 300))},
-    {6.0, simpleEnemyFactory(Point2d(300, 300))},
-    {9.0, simpleEnemyFactory(Point2d(400, 300))}
+	{0.0, simpleEnemyFactory(1, Circle(100, 300, 40), 10, enemyCommands[0])},
+	{3.0, simpleEnemyFactory(1, Circle(200, 300, 40), 10, enemyCommands[1])},
+	{6.0, simpleEnemyFactory(1, Circle(300, 300, 40), 10, enemyCommands[2])},
+	{9.0, simpleEnemyFactory(1, Circle(400, 300, 40), 10, enemyCommands[1])},
+    
   }));
   stage = unique_ptr<Stage>(new Stage(player, move(scene)));
   assert(!scene);

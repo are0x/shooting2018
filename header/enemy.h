@@ -1,9 +1,10 @@
 #pragma once
 
 #include "circle.h"
+#include "enemy_command.h"
 #include <memory>
 
-class EnemyBullet{
+class EnemyBullet {
 public:
   void Update();
   void Draw();
@@ -13,9 +14,10 @@ public:
 
 class Enemy{
   int hp;
-  Circle circle;
   bool deadFlag;
-public:
+ protected:
+  Circle circle;
+ public:
   Enemy(int hp, Circle circle);
   virtual void Update() = 0;
   virtual void Draw();
