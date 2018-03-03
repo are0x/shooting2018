@@ -29,12 +29,17 @@ void display(void);
 
 unique_ptr<Keyboard> keyboard;
 unique_ptr<Stage> stage;
+unique_ptr<Player> gPlayer(new Player(Circle{320, 100, 20}));
 are_time::TimeManager timeManager;
 std::vector<std::vector<EnemyCommand>> enemyCommands{
-  {makeEnemyCommand("move 10 0 -160")},
-  {makeEnemyCommand("move 10 -80 -80")},
-  {makeEnemyCommand("move 2 0 -160"),
-   makeEnemyCommand("move 8 0 80")}
+  {
+    makeEnemyCommand("mangle 30"),
+    makeEnemyCommand("move 10 160"),
+  },
+  {
+    makeEnemyCommand("mpangle 0"),
+    makeEnemyCommand("move 10 150"),
+  },
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -57,7 +62,7 @@ int main(void)
   /* Make the window's context current */
   glfwMakeContextCurrent(window.get());
 
-  //set key call back
+   //set key call back
   glfwSetKeyCallback(window.get(), key_callback);
 
   //view port setting
@@ -65,21 +70,20 @@ int main(void)
   glOrtho(0, 640, 0, 480, -1, 1);
 
   //init stage
-  Player player(Circle{320, 100, 20});
   unique_ptr<Scene> scene(new SimpleScene(vector<pair<double, shared_ptr<EnemyFactory>>>{
 	{0.0, simpleEnemyFactory(1, Circle(100, 300, 40), 10, enemyCommands[0])},
 	{3.0, simpleEnemyFactory(1, Circle(200, 300, 40), 10, enemyCommands[1])},
-	{6.0, simpleEnemyFactory(1, Circle(300, 300, 40), 10, enemyCommands[2])},
+	{6.0, simpleEnemyFactory(1, Circle(300, 300, 40), 10, enemyCommands[0])},
 	{9.0, simpleEnemyFactory(1, Circle(400, 300, 40), 10, enemyCommands[1])},
     
   }));
-  stage = unique_ptr<Stage>(new Stage(player, move(scene)));
+  stage = unique_ptr<Stage>(new Stage(move(scene)));
   assert(!scene);
   
   keyboard = unique_ptr<Keyboard>(new Keyboard());
   
   stage->Update();
-
+  
   glfwSetTime(0);
   /* Loop until the user closes the window */
   while (!glfwWindowShouldClose(window.get())) {

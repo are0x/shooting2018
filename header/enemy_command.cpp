@@ -7,11 +7,13 @@ EnemyCommand::EnemyCommand(EnemyCommandType command, const std::vector<std::stri
   this->args = args;
 }
 
-EnemyCommandType makeEnemyCommandType(std::string str) {
+EnemyCommandType makeEnemyCommandType(const std::string& str) {
   if (str == "move") {
     return EnemyCommandType::move;
-  } else if (str == "pmove") {
-    return EnemyCommandType::pmove;
+  } else if (str == "mangle") {
+    return EnemyCommandType::mangle;
+  } else if (str == "mpangle") {
+    return EnemyCommandType::mpangle;
   } else if (str == "stop") {
      return EnemyCommandType::stop;
   } else if (str == "attack") {

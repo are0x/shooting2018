@@ -3,13 +3,14 @@
 #include <vector>
 #include <string>
 /*
-(move t angle v)
-(pmove t angle v)
-(stop t) = (move t 0 0)
+(mpangle relangle)
+(mangle relangle)
+(move t v)
+(stop t) = (move t 0)
 (attack id)
 */
 
-enum class EnemyCommandType{move, pmove, stop, attack, nop};
+enum class EnemyCommandType{move, mangle, mpangle, stop, attack, nop};
 
 class EnemyCommand
 {
@@ -20,6 +21,6 @@ class EnemyCommand
  EnemyCommandType command;
 };
 
-EnemyCommandType makeEnemyCommandType(std::string str);
+EnemyCommandType makeEnemyCommandType(const std::string& str);
 
 EnemyCommand makeEnemyCommand(std::string raw);

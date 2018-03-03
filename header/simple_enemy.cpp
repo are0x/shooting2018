@@ -1,5 +1,8 @@
 #include "simple_enemy.h"
 #include <iostream>
+#include <cmath>
+
+const double SimpleEnemy::DEGTORAD = 2 * M_PI / 360;
 
 SimpleEnemy::SimpleEnemy(
 	      int hp,
@@ -12,6 +15,7 @@ SimpleEnemy::SimpleEnemy(
   this->commandTime = 0;
   this->commands = commands;
   doneCount = 0;
+  this->moveDir = {1, 0};
 }
 
 void SimpleEnemy::Update() {
@@ -20,8 +24,7 @@ void SimpleEnemy::Update() {
     EnemyCommand& curCommand = commands[doneCount];
     if (curCommand.command == EnemyCommandType::move) {
       double t = std::stod(curCommand.args[0]);
-      double vx = std::stod(curCommand.args[1]);
-      double vy = std::stod(curCommand.args[2]);
+      double v = std::stod(curCommand.args[1]);
       double exCommandTime = deltaTime;
       bool bNextCommand = commandTime + deltaTime > t;
       if (bNextCommand) {
@@ -30,7 +33,7 @@ void SimpleEnemy::Update() {
 	deltaTime -= exCommandTime; 
 	doneCount++;
       }
-      Point2d npos = circle.Center() +  exCommandTime * Point2d(vx, vy);
+      Point2d npos = circle.Center() +  exCommandTime * v * moveDir;
       circle = Circle{npos.real(), npos.imag(), circle.Radius()};
       if (!bNextCommand) {
 	break;
@@ -44,11 +47,18 @@ void SimpleEnemy::Update() {
       } else {
 	break;
       }
-    } else {
-      doneCount++;
+    } else if (curCommand.command == EnemyCommandType::mangle) {
+      double rad = std::stod(curCommand.args[0]) * DEGTORAD;
+      moveDir = std::polar(1.0, rad);
+    } else if (curCommand.command == EnemyCommandType::mpangle) {
+      double rad = std::stod(curCommand.args[0]) * DEGTORAD;
+      std::complex<double> rot = std::polar(1.0, rad);
+      std::complex<double> epv = gPlayer->HitBody().Center() - circle.Center();
+      std::complex<double> nepv = std::polar(1.0, std::arg(epv));
+      moveDir = nepv * rot;
     }
-    //TODO pmove
     //TODO attack
+    doneCount++;
   }
   commandTime += deltaTime;
 }

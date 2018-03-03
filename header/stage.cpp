@@ -1,15 +1,15 @@
 #include "stage.h"
 #include <algorithm>
 
-Stage::Stage (const Player& player, std::unique_ptr<Scene> scene) {
-  this->initPlayer = std::unique_ptr<Player>(new Player(player));
-  this->player = std::unique_ptr<Player>(new Player(player));
+Stage::Stage (std::unique_ptr<Scene> scene) {
+  //this->initPlayer = gPlayer;
+  //this->player = gPlayer;
   this->scene = move(scene);
   this->respawnCounter = 0;
 }
 
 void Stage::Update() {
-  std::vector<std::unique_ptr<PlayerBullet>> newPlayerBullets = player->Update();
+  std::vector<std::unique_ptr<PlayerBullet>> newPlayerBullets = gPlayer->Update();
     
   for (auto& enemy : enemies) {
     enemy->Update();
@@ -25,7 +25,6 @@ void Stage::Update() {
     playerBullets.push_back(move(newPlayerBullet));
   }
   for(auto& newEnemy : newEnemies) {
-
     enemies.push_back(move(newEnemy));
   }
      
@@ -44,9 +43,9 @@ void Stage::Update() {
   }
 
   for (auto& enemy : enemies) {
-    if (enemy->HitBody().IsOverlapC(player->HitBody())) {
+    if (enemy->HitBody().IsOverlapC(gPlayer->HitBody())) {
       enemy->AddDamage(1000000);
-      player->AddDamage(1);
+      gPlayer->AddDamage(1);
     }
   }
 
@@ -60,17 +59,17 @@ void Stage::Update() {
     std::remove_if (playerBullets.begin(), playerBullets.end(),
 	       [](std::unique_ptr<PlayerBullet>& x)->bool{return x->IsDead();});
   playerBullets.erase(playerBulletNewEnd, playerBullets.end());
-  if (player->IsDead()) {
-    player->MoveOutOfDisplay();
+  if (gPlayer->IsDead()) {
+    gPlayer->MoveOutOfDisplay();
     if (keyboard->IsPressed('r') && respawnCounter < 3) {
-      player = std::unique_ptr<Player>(new Player(*initPlayer));
+      //player = std::unique_ptr<Player>(new Player(*initPlayer));
       respawnCounter++;
     }
   }
 }
 
 void Stage::Draw() {
-  player->Draw();
+  gPlayer->Draw();
     
   for (auto& enemy : enemies) {
     enemy->Draw();

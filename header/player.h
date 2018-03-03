@@ -37,3 +37,5 @@ public:
   void AddDamage(int damage);
   bool IsDead();
 };
+
+extern std::unique_ptr<Player> gPlayer;
