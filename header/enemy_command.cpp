@@ -16,8 +16,8 @@ EnemyCommandType makeEnemyCommandType(const std::string& str) {
     return EnemyCommandType::mpangle;
   } else if (str == "stop") {
      return EnemyCommandType::stop;
-  } else if (str == "attack") {
-    return EnemyCommandType::attack;
+  } else if (str == "bullet") {
+    return EnemyCommandType::bullet;
   }
   return EnemyCommandType::nop;
 }
@@ -37,5 +37,12 @@ EnemyCommand makeEnemyCommand(std::string raw) {
     }
     cnt++;
   }
-  return EnemyCommand(makeEnemyCommandType(command), splited);
+  auto commandType = makeEnemyCommandType(command);
+  if (commandType == EnemyCommandType::bullet) {
+    if ((int)splited.size() == 1) {
+      splited.push_back("0");
+      splited.push_back("0");
+    }
+  }
+  return EnemyCommand(commandType, splited);
 }

@@ -20,7 +20,6 @@
 
 using namespace std;
 
-
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 void display(void);
 //void idle(void);
@@ -37,9 +36,21 @@ std::vector<std::vector<EnemyCommand>> enemyCommands{
     makeEnemyCommand("move 10 160"),
   },
   {
+    makeEnemyCommand("bullet 0"),
+      makeEnemyCommand("angle 270"),
+      makeEnemyCommand("move 0.5 160"),
+      makeEnemyCommand("bullet 0"),
+      makeEnemyCommand("move 1 160"),
+      makeEnemyCommand("bullet 0"),
+  },
+  {
     makeEnemyCommand("mpangle 0"),
     makeEnemyCommand("move 10 150"),
   },
+};
+
+std::vector<SimpleEnemyFactory> bulletFactorys{
+  simpleBulletFactory(10, enemyCommands[2]),
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -72,9 +83,9 @@ int main(void)
   //init stage
   unique_ptr<Scene> scene(new SimpleScene(vector<pair<double, shared_ptr<EnemyFactory>>>{
 	{0.0, simpleEnemyFactory(1, Circle(100, 300, 40), 10, enemyCommands[0])},
-	{3.0, simpleEnemyFactory(1, Circle(200, 300, 40), 10, enemyCommands[1])},
+	  {3.0, simpleEnemyFactory(1, Circle(200, 300, 40), 10, enemyCommands[1], bulletFactorys)},
 	{6.0, simpleEnemyFactory(1, Circle(300, 300, 40), 10, enemyCommands[0])},
-	{9.0, simpleEnemyFactory(1, Circle(400, 300, 40), 10, enemyCommands[1])},
+	  {9.0, simpleEnemyFactory(1, Circle(400, 300, 40), 10, enemyCommands[1], bulletFactorys)},
     
   }));
   stage = unique_ptr<Stage>(new Stage(move(scene)));

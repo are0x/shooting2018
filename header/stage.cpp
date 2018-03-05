@@ -24,6 +24,15 @@ void Stage::Update() {
   for(auto& newPlayerBullet : newPlayerBullets) {
     playerBullets.push_back(move(newPlayerBullet));
   }
+
+  //add bullet
+  for (auto& enemy : enemies) {
+    for(auto& newEnemyBullet : enemy->MakeBullet()) {
+      enemyBullets.push_back(move(newEnemyBullet));
+    }
+  }
+
+  //pop new enemy
   for(auto& newEnemy : newEnemies) {
     enemies.push_back(move(newEnemy));
   }
@@ -38,6 +47,13 @@ void Stage::Update() {
       }
     }
     if (hitBulletFlag) {
+      bullet->AddDamage(1);
+    }
+  }
+
+  for (auto& bullet : enemyBullets) {
+    if (bullet->HitBody().IsOverlapC(gPlayer->HitBody())) {
+      gPlayer->AddDamage(1);
       bullet->AddDamage(1);
     }
   }

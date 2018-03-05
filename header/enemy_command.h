@@ -7,10 +7,11 @@
 (mangle relangle)
 (move t v)
 (stop t) = (move t 0)
-(attack id)
+(bullet id relx=0 rely=0)
+(enemy id)
 */
 
-enum class EnemyCommandType{move, mangle, mpangle, stop, attack, nop};
+enum class EnemyCommandType{move, mangle, mpangle, stop, bullet, nop};
 
 class EnemyCommand
 {

@@ -1,13 +1,5 @@
 #include "enemy.h"
 
-void EnemyBullet::Update(){
-  // TODO: implement this
-}
-void EnemyBullet::Draw() {
-  // TODO: implement this
-}
-///////////////////////////////////////////////////////////////////////////////
-
 Enemy::Enemy(int hp, Circle circle) {
   this->hp = hp;
   this->circle = circle;
@@ -24,4 +16,8 @@ Circle Enemy::HitBody() {
 }
 void Enemy::AddDamage(int damage) {
   this->hp -= damage;
+}
+
+std::vector<std::unique_ptr<Enemy>> Enemy::MakeBullet() {
+  return std::vector<std::unique_ptr<Enemy>>();
 }

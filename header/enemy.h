@@ -4,14 +4,6 @@
 #include "enemy_command.h"
 #include <memory>
 
-class EnemyBullet {
-public:
-  void Update();
-  void Draw();
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
 class Enemy{
   int hp;
   bool deadFlag;
@@ -22,6 +14,7 @@ class Enemy{
   virtual void Update() = 0;
   virtual void Draw();
   virtual bool IsDead();
+  virtual std::vector<std::unique_ptr<Enemy>> MakeBullet();
   Circle HitBody();
   void AddDamage(int damage);
 };
