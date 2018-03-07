@@ -19,6 +19,7 @@ add_executable(Main
   header/stage.cpp
   header/time_manager.cpp
   header/enemy_command.cpp
+  header/random_util.cpp
 )
 
 IF(APPLE)

@@ -63,7 +63,7 @@ void SimpleEnemy::Update() {
       int bulNum = bulletFactory.size();
       int bulId = std::stoi(curCommand.args[0]);
       
-      if (bulId >= bulNum) {
+        if (bulId >= bulNum) {
 	continue;
       }
       double relX = std::stod(curCommand.args[1]);

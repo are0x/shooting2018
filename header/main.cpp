@@ -53,6 +53,23 @@ std::vector<SimpleEnemyFactory> bulletFactorys{
   simpleBulletFactory(10, enemyCommands[2]),
 };
 
+std::vector<SimpleSceneFactory> sceneFactorys{
+  SimpleSceneFactory(vector<pair<double, shared_ptr<EnemyFactory>>>{
+	{0.0, simpleEnemyFactory(1, Circle(100, 300, 40), 10, enemyCommands[0])},
+	{3.0, simpleEnemyFactory(1, Circle(200, 300, 40), 10, enemyCommands[1], bulletFactorys)},
+	{6.0, simpleEnemyFactory(1, Circle(300, 300, 40), 10, enemyCommands[0])},
+	{9.0, simpleEnemyFactory(1, Circle(400, 300, 40), 10, enemyCommands[1], bulletFactorys)},
+      },
+    10.0),
+   SimpleSceneFactory(vector<pair<double, shared_ptr<EnemyFactory>>>{
+	{0.0, simpleEnemyFactory(1, Circle(100, 300, 20), 10, enemyCommands[0])},
+	{3.0, simpleEnemyFactory(1, Circle(200, 300, 20), 10, enemyCommands[1], bulletFactorys)},
+	{6.0, simpleEnemyFactory(1, Circle(300, 300, 20), 10, enemyCommands[0])},
+	{9.0, simpleEnemyFactory(1, Circle(400, 300, 20), 10, enemyCommands[1], bulletFactorys)},
+      },
+    10.0),
+    };
+
 ///////////////////////////////////////////////////////////////////////////////
 
 int main(void)
@@ -81,15 +98,12 @@ int main(void)
   glOrtho(0, 640, 0, 480, -1, 1);
 
   //init stage
-  unique_ptr<Scene> scene(new SimpleScene(vector<pair<double, shared_ptr<EnemyFactory>>>{
-	{0.0, simpleEnemyFactory(1, Circle(100, 300, 40), 10, enemyCommands[0])},
-	  {3.0, simpleEnemyFactory(1, Circle(200, 300, 40), 10, enemyCommands[1], bulletFactorys)},
-	{6.0, simpleEnemyFactory(1, Circle(300, 300, 40), 10, enemyCommands[0])},
-	  {9.0, simpleEnemyFactory(1, Circle(400, 300, 40), 10, enemyCommands[1], bulletFactorys)},
-    
-  }));
-  stage = unique_ptr<Stage>(new Stage(move(scene)));
-  assert(!scene);
+  std::vector<std::shared_ptr<SceneFactory>> stageSceneFactories = {
+    std::shared_ptr<SceneFactory>(&sceneFactorys[0]),
+    std::shared_ptr<SceneFactory>(&sceneFactorys[1]),
+  };
+  stage = unique_ptr<Stage>(new Stage(stageSceneFactories, 7));
+  stage->Start();
   
   keyboard = unique_ptr<Keyboard>(new Keyboard());
   

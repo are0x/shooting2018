@@ -1,11 +1,23 @@
 #include "stage.h"
 #include <algorithm>
 
-Stage::Stage (std::unique_ptr<Scene> scene) {
+Stage::Stage (const std::vector<std::shared_ptr<SceneFactory>>& scenes, int clearNum) {
   //this->initPlayer = gPlayer;
   //this->player = gPlayer;
-  this->scene = move(scene);
+  gen = RandomUtil();
+  this->scenes = scenes;
   this->respawnCounter = 0;
+  this->clearConditionNum = clearNum;
+  this->clearSceneNum = 0;
+}
+
+std::unique_ptr<Scene> Stage::DrowScene() {
+  return move(scenes[gen.Range(0, (int)scenes.size() - 1)]->Make());
+}
+
+void Stage::Start() {
+  nowScene = DrowScene();
+  nextScene = DrowScene();
 }
 
 void Stage::Update() {
@@ -20,7 +32,7 @@ void Stage::Update() {
   for (auto& bullet : enemyBullets) {
     bullet->Update();
   }
-  std::vector<std::unique_ptr<Enemy>> newEnemies = scene->Update();
+  std::vector<std::unique_ptr<Enemy>> newEnemies = nowScene->Update();
   for(auto& newPlayerBullet : newPlayerBullets) {
     playerBullets.push_back(move(newPlayerBullet));
   }
@@ -81,6 +93,14 @@ void Stage::Update() {
       //player = std::unique_ptr<Player>(new Player(*initPlayer));
       respawnCounter++;
     }
+  }
+
+  //scene transition
+  if (nowScene->IsEnd()) {
+    nowScene = move(nextScene);
+    nextScene = DrowScene();
+    clearSceneNum++;
+    nowScene->Start();
   }
 }
 
