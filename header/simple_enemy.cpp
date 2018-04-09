@@ -34,7 +34,6 @@ void SimpleEnemy::Update() {
 	exCommandTime = t - commandTime;
 	commandTime = 0;
 	deltaTime -= exCommandTime; 
-	doneCount++;
       }
       Point2d npos = circle.Center() +  exCommandTime * v * moveDir;
       circle = Circle{npos.real(), npos.imag(), circle.Radius()};
@@ -45,8 +44,7 @@ void SimpleEnemy::Update() {
       double t = std::stod(curCommand.args[0]);
       if (commandTime + deltaTime > t) {
 	commandTime = 0;
-	deltaTime -= (t - commandTime); 
-	doneCount++;
+	deltaTime -= (t - commandTime);
       } else {
 	break;
       }
@@ -62,8 +60,8 @@ void SimpleEnemy::Update() {
     } else if (curCommand.command == EnemyCommandType::bullet) {
       int bulNum = bulletFactory.size();
       int bulId = std::stoi(curCommand.args[0]);
-      
-        if (bulId >= bulNum) {
+      if (bulId >= bulNum) {
+	doneCount++;
 	continue;
       }
       double relX = std::stod(curCommand.args[1]);
@@ -72,7 +70,7 @@ void SimpleEnemy::Update() {
       factory.SetMakePos(Point2d(relX, relY) + circle.Center());
       bullets.emplace_back(factory.Make());
     }
-    doneCount++;
+     doneCount++;
   }
   commandTime += deltaTime;
 }

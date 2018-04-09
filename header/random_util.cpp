@@ -6,5 +6,5 @@ RandomUtil::RandomUtil() {
 }
 
 int RandomUtil::Range(int minVal, int maxVal) {
-  return engine() % (maxVal - minVal);
+  return engine() % (maxVal - minVal + 1) + minVal;
 }

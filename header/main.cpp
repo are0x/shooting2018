@@ -37,7 +37,7 @@ std::vector<std::vector<EnemyCommand>> enemyCommands{
   },
   {
     makeEnemyCommand("bullet 0"),
-      makeEnemyCommand("angle 270"),
+      makeEnemyCommand("mangle 270"),
       makeEnemyCommand("move 0.5 160"),
       makeEnemyCommand("bullet 0"),
       makeEnemyCommand("move 1 160"),
@@ -47,11 +47,60 @@ std::vector<std::vector<EnemyCommand>> enemyCommands{
     makeEnemyCommand("mpangle 0"),
     makeEnemyCommand("move 10 150"),
   },
+    {
+      makeEnemyCommand("mangle 270"),
+      makeEnemyCommand("move 20 400")
+    },
+    {
+      makeEnemyCommand("mangle 270"),
+      makeEnemyCommand("move 20 200")
+    },
+    {
+      makeEnemyCommand("mangle 0"),
+      makeEnemyCommand("move 0.2 800"),
+      makeEnemyCommand("mangle 270"),
+      makeEnemyCommand("move 0.3 600"),
+      makeEnemyCommand("mangle 0"),
+      makeEnemyCommand("move 20 800"),
+    },
+    {
+      makeEnemyCommand("mangle 90"),
+      makeEnemyCommand("move 0.8 800"),
+      makeEnemyCommand("mangle 0"),
+      makeEnemyCommand("move 0.5 800"),
+      makeEnemyCommand("mangle -90"),
+      makeEnemyCommand("move 2 800"),
+    },
+    {
+      makeEnemyCommand("mangle 90"),
+      makeEnemyCommand("move 0.8 800"),
+      makeEnemyCommand("mangle 180"),
+      makeEnemyCommand("move 0.5 800"),
+      makeEnemyCommand("mangle -90"),
+      makeEnemyCommand("move 2 800"),
+    },
 };
 
 std::vector<SimpleEnemyFactory> bulletFactorys{
   simpleBulletFactory(10, enemyCommands[2]),
 };
+
+SimpleSceneFactory StraightScene(int startx, int dx, int cmdIdx) {
+  vector<pair<double, shared_ptr<EnemyFactory>>> schedule;
+  int num = 20;
+  for (int i = 0;i < num;i++) {
+    schedule.push_back({0.3 + i * 0.2 ,simpleEnemyFactory(1, Circle(startx + (i % 2 * dx), 800, 30), 20, enemyCommands[cmdIdx])});
+  }
+  return SimpleSceneFactory(schedule, 4.8);
+}
+
+SimpleSceneFactory RepEnemyScene(int startx, int starty, int num, double dsec, double sec, const std::vector<EnemyCommand>& cmds) {
+  vector<pair<double, shared_ptr<EnemyFactory>>> schedule;
+  for (int i = 0;i < num;i++) {
+    schedule.push_back({dsec + i * 0.2 ,simpleEnemyFactory(1, Circle(startx, starty, 30), 20, cmds)});
+  }
+  return SimpleSceneFactory(schedule, sec);
+}
 
 std::vector<SimpleSceneFactory> sceneFactorys{
   SimpleSceneFactory(vector<pair<double, shared_ptr<EnemyFactory>>>{
@@ -68,6 +117,13 @@ std::vector<SimpleSceneFactory> sceneFactorys{
 	{9.0, simpleEnemyFactory(1, Circle(400, 300, 20), 10, enemyCommands[1], bulletFactorys)},
       },
     10.0),
+    StraightScene(100, 100, 2),
+    StraightScene(500, -100, 2),
+    StraightScene(100, 100, 3),
+    StraightScene(500, -100, 3),
+    RepEnemyScene(0, 700, 14, 0.3, 4.8, enemyCommands[5]),
+    RepEnemyScene(100, 0, 14, 0.3, 4.8, enemyCommands[6]),
+    RepEnemyScene(500, 0, 14, 0.3, 4.8, enemyCommands[7]),
     };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -79,9 +135,12 @@ int main(void)
         return -1;
   }
 
+  int w = 600;
+  int h = 800;
+
   /* Create a windowed mode window and its OpenGL context */
   unique_ptr<GLFWwindow, decltype(&glfwDestroyWindow)>
-    window(glfwCreateWindow(640, 480, "シューティンギュ", NULL, NULL), glfwDestroyWindow);
+    window(glfwCreateWindow(w, h, "シューティンギュ", NULL, NULL), glfwDestroyWindow);
   if (!window) {
     glfwTerminate();
     return -1;
@@ -94,13 +153,19 @@ int main(void)
   glfwSetKeyCallback(window.get(), key_callback);
 
   //view port setting
-  glViewport(0, 0, 640, 480);
-  glOrtho(0, 640, 0, 480, -1, 1);
+  
+  glViewport(0, 0, w, h);
+  glOrtho(0, w, 0, h, -1, 1);
 
   //init stage
   std::vector<std::shared_ptr<SceneFactory>> stageSceneFactories = {
-    std::shared_ptr<SceneFactory>(&sceneFactorys[0]),
-    std::shared_ptr<SceneFactory>(&sceneFactorys[1]),
+    std::shared_ptr<SceneFactory>(&sceneFactorys[2]),
+    std::shared_ptr<SceneFactory>(&sceneFactorys[3]),
+    std::shared_ptr<SceneFactory>(&sceneFactorys[4]),
+    std::shared_ptr<SceneFactory>(&sceneFactorys[5]),
+    std::shared_ptr<SceneFactory>(&sceneFactorys[6]),
+    std::shared_ptr<SceneFactory>(&sceneFactorys[7]),
+    std::shared_ptr<SceneFactory>(&sceneFactorys[8]),
   };
   stage = unique_ptr<Stage>(new Stage(stageSceneFactories, 7));
   stage->Start();

@@ -1,4 +1,5 @@
 #include "stage.h"
+#include <iostream>
 #include <algorithm>
 
 Stage::Stage (const std::vector<std::shared_ptr<SceneFactory>>& scenes, int clearNum) {
@@ -12,7 +13,8 @@ Stage::Stage (const std::vector<std::shared_ptr<SceneFactory>>& scenes, int clea
 }
 
 std::unique_ptr<Scene> Stage::DrowScene() {
-  return move(scenes[gen.Range(0, (int)scenes.size() - 1)]->Make());
+  int idx = gen.Range(0, (int)scenes.size() - 1);
+  return move(scenes[idx]->Make());
 }
 
 void Stage::Start() {
